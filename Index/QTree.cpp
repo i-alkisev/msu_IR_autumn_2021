@@ -47,7 +47,7 @@ QNode::QNode(QNode &&other) {
     right_val_ = other.right_val_;
 }
 
-SimpleQLeaf::SimpleQLeaf(const std::set<int> *posting_list): posting_list_(posting_list) {
+SimpleQLeaf::SimpleQLeaf(const std::vector<int> *posting_list): posting_list_(posting_list) {
     if (posting_list_) {
         iter_ = posting_list_->begin();
     }
@@ -115,7 +115,7 @@ CompressQLeaf::CompressQLeaf(CompressQLeaf &&other) {
     bit_num_ = other.bit_num_;
 }
 
-QTree::QTree(const simple_index &dict, const std::wstring &query) {
+QTree::QTree(const simple_index_vec &dict, const std::wstring &query) {
     std::vector<std::wstring> rpn = reverse_polish_notation(query);
     std::vector<std::unique_ptr<IQTreeElem>> stack;
     for (size_t i = 0; i < rpn.size(); ++i) {
@@ -138,7 +138,7 @@ QTree::QTree(const simple_index &dict, const std::wstring &query) {
             stack.emplace_back(new QNode(QNode_t::AND, std::move(left), std::move(right)));
         }
         else {
-            const std::set<int> *ptr = nullptr;
+            const std::vector<int> *ptr = nullptr;
             auto it = dict.find(rpn[i]);
             if (it != dict.end()) {
                 ptr = &(it->second);

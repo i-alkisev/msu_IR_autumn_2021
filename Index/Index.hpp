@@ -7,6 +7,7 @@
 #include <set>
 
 using simple_index = std::unordered_map<std::wstring, std::set<int>>;
+using simple_index_vec = std::unordered_map<std::wstring, std::vector<int>>;
 using compressed_index = std::unordered_map<std::wstring, std::vector<char>>;
 using id2url = std::vector<std::string>;
 
@@ -23,5 +24,7 @@ size_t bit_len(int a);
 std::vector<char> compress(const std::vector<int> &ints);
 
 compressed_index compress_index(const simple_index &dict);
+
+simple_index_vec vectorize_index(const simple_index &dict);
 
 #endif

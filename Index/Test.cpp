@@ -15,6 +15,9 @@ int64_t mean(const std::vector<int64_t> v) {
     return m / v.size();
 }
 
+#include <locale>
+#include <codecvt>
+
 void run_test(int count_files, const char *file_names[]) {
     std::vector<std::wstring> test_queries = {
         L"рыба",
@@ -45,6 +48,8 @@ void run_test(int count_files, const char *file_names[]) {
 
     std::chrono::time_point<std::chrono::steady_clock> compress_end = std::chrono::steady_clock::now();
 
+    simple_index_vec vdict = vectorize_index(dict);
+
     std::cout << "Index info:" << std::endl;
 
     auto elapsed4create = std::chrono::duration_cast<std::chrono::milliseconds>(create_end - create_start);
@@ -61,7 +66,7 @@ void run_test(int count_files, const char *file_names[]) {
     std::cout << "count_words:    " << dict.size() << std::endl;
 
     size_t memory_usage = 0;
-    for (auto it = dict.begin(); it != dict.end(); ++it) {
+    for (auto it = vdict.begin(); it != vdict.end(); ++it) {
         memory_usage += it->second.size() * sizeof(int);
     }
     std::cout << "\nBefore compression\n memory_usage: " << memory_usage / 1024 << " Kb" << std::endl;
@@ -90,7 +95,7 @@ void run_test(int count_files, const char *file_names[]) {
         qtimes[0].push_back(elapsed.count());
 
         start = std::chrono::steady_clock::now();
-        std::vector<int> ans2 = streaming_query_processing(dict, query);
+        std::vector<int> ans2 = streaming_query_processing(vdict, query);
         end = std::chrono::steady_clock::now();
         elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
         qtimes[1].push_back(elapsed.count());

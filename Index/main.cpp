@@ -15,19 +15,23 @@ void run(const IndexType &dict, const id2url &urls, std::vector<int> (*q_process
     std::wstring query;
     std::string query_src;
 
-    std::cout << "Query > ";
+    std::cout << "\nQuery > ";
     std::getline(std::cin, query_src);
     query = converter.from_bytes(query_src);
 
     while (query != L"exit()") {
-        std::vector<int> ans = q_processing(dict, query);
+        try {
+            std::vector<int> ans = q_processing(dict, query);
 
-        std::cout << "Found " << ans.size() << " pages" << std::endl;
-        for (size_t i = 0; i < ans.size(); ++i){
-            std::cout << i + 1 << ") " << urls[ans[i]] << std::endl;
+            std::cout << "Found " << ans.size() << " pages" << std::endl;
+            for (size_t i = 0; i < ans.size(); ++i){
+                std::cout << i + 1 << ") " << urls[ans[i] - 1] << std::endl;
+            }
         }
-
-        std::cout << "Query > ";
+        catch (std::runtime_error &e) {
+            std::cout << e.what() << std::endl;
+        }
+        std::cout << "\nQuery > ";
         std::getline(std::cin, query_src);
         query = converter.from_bytes(query_src);
     }
@@ -56,11 +60,12 @@ void run_simpleidx(int count_files, const char *file_names[]) {
         memory_usage += it->second.size() * sizeof(int);
     }
 
+    std::cout << "\nIndex info:" << std::endl;
     std::cout << "create_time:  " << sec << "s " << msec << "ms" << std::endl;
     std::cout << "memory_usage: " << memory_usage / 1024 << " Kb" << std::endl;
     std::cout << "count_docs:   " << urls.size() << std::endl;
-    std::cout << "count_words:  " << dict.size() << std::endl;
     std::cout << "bad_docs:     " << bad_docs << std::endl;
+    std::cout << "count_words:  " << dict.size() << std::endl;
 
     run(dict, urls, simple_query_processing);
 }
@@ -88,13 +93,16 @@ void run_simpleidx_qtree(int count_files, const char *file_names[]) {
         memory_usage += it->second.size() * sizeof(int);
     }
 
+    std::cout << "\nIndex info:" << std::endl;
     std::cout << "create_time:  " << sec << "s " << msec << "ms" << std::endl;
     std::cout << "memory_usage: " << memory_usage / 1024 << " Kb" << std::endl;
     std::cout << "count_docs:   " << urls.size() << std::endl;
-    std::cout << "count_words:  " << dict.size() << std::endl;
     std::cout << "bad_docs:     " << bad_docs << std::endl;
+    std::cout << "count_words:  " << dict.size() << std::endl;
 
-    run(dict, urls, streaming_query_processing);
+    simple_index_vec vdict = vectorize_index(dict);
+
+    run(vdict, urls, streaming_query_processing);
 }
 
 void run_compressidx_qtree(int count_files, const char *file_names[]) {
@@ -119,6 +127,7 @@ void run_compressidx_qtree(int count_files, const char *file_names[]) {
     auto elapsed4create = std::chrono::duration_cast<std::chrono::milliseconds>(create_end - start);
     auto elapsed4compress = std::chrono::duration_cast<std::chrono::milliseconds>(compress_end - create_end);
 
+    std::cout << "\nIndex info:" << std::endl;
     int64_t sec = elapsed4create.count() / 1000;
     int64_t msec = elapsed4create.count() - 1000 * sec;
     std::cout << "create_time:   " << sec << "s " << msec << "ms" << std::endl;
@@ -132,8 +141,8 @@ void run_compressidx_qtree(int count_files, const char *file_names[]) {
     }
     std::cout << "memory_usage:  " << memory_usage / 1024 << " Kb" << std::endl;
     std::cout << "count_docs:    " << urls.size() << std::endl;
-    std::cout << "count_words:   " << dict.size() << std::endl;
     std::cout << "bad_docs:      " << bad_docs << std::endl;
+    std::cout << "count_words:   " << dict.size() << std::endl;
 
     run(cdict, urls, streaming_query_processing);
 }

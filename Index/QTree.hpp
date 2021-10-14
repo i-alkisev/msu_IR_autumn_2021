@@ -30,14 +30,14 @@ private:
 
 class SimpleQLeaf: public IQTreeElem {
 public:
-    SimpleQLeaf(const std::set<int> *posting_list);
+    SimpleQLeaf(const std::vector<int> *posting_list);
     int getNext() override ;
     SimpleQLeaf(SimpleQLeaf&& other);
     ~SimpleQLeaf() = default;
 
 private:
-    const std::set<int> *posting_list_;
-    std::set<int>::iterator iter_;
+    const std::vector<int> *posting_list_;
+    std::vector<int>::const_iterator iter_;
 };
 
 class CompressQLeaf: public IQTreeElem {
@@ -55,7 +55,7 @@ private:
 
 class QTree {
 public:
-    QTree(const simple_index &dict, const std::wstring &query);
+    QTree(const simple_index_vec &dict, const std::wstring &query);
     QTree(const compressed_index &dict, const std::wstring &query);
     int getNext() { return head_->getNext(); }
 

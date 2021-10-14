@@ -134,3 +134,11 @@ compressed_index compress_index(const simple_index &dict) {
     }
     return compressed_dict;
 }
+
+simple_index_vec vectorize_index(const simple_index &dict) {
+    simple_index_vec vec_dict;
+    for (auto it = dict.begin(); it != dict.end(); ++it) {
+        vec_dict[it->first] = std::vector<int>{it->second.begin(), it->second.end()};
+    }
+    return vec_dict;
+}
